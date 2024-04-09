@@ -1,0 +1,12 @@
+@use "base-colors" as base-colors;
+@use "sass:color";
+
+// semantic colors: abstract interpretations of base colors
+$outer-background: base-colors.$white;
+$inner-background: base-colors.$light-gray;
+$inner-background-hover: color.adjust(base-colors.$light-gray, $blackness: 10%);
+$error-background: color.adjust(base-colors.$red, $alpha: -0.8);
+$error-text: base-colors.$red;
+$error-border: base-colors.$red;
+$text: base-colors.$black;
+$border: base-colors.$black;

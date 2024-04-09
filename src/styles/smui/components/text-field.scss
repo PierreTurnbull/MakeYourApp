@@ -1,0 +1,23 @@
+@import "../../graphic-charter/colors/semantic-colors";
+
+.mdc-text-field {
+	&--invalid .mdc-text-field {
+		&__input {
+			border: 2px solid $error-text !important;
+		}
+	}
+
+	& .mdc-text-field {
+		&__input {
+			height: 32px;
+			border-radius: $border-radius;
+			border: 2px solid $text;
+			padding: 0 8px;
+			box-sizing: border-box;
+
+			&:focus, &:focus-visible {
+				outline: none;
+			}
+		}
+	}
+}
