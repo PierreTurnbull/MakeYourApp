@@ -5,10 +5,9 @@
     import { newUserInterfaceStore } from "$stores/newUserInterface/newUserInterface.store";
     import { userInterfacesStore } from "$stores/userInterfaces/userInterfaces.store";
     import type { TUserInterface } from "$models/userInterface/userInterface.model";
+    import Overlay from "./Overlay/Overlay.svelte";
 
 	export let userInterface: TNewUserInterface;
-
-	let rootRef: HTMLElement;
 
 	const onDraggingSuccess = async (newX: number, newY: number) => {
 		try {
@@ -34,46 +33,22 @@
 	};
 </script>
 
-<div
-	bind:this={rootRef}
-	class="newUserInterface"
+<Draggable
+	type="clickAndRelease"
+	onDraggingSuccess={onDraggingSuccess}
+	onDraggingFailure={onDraggingFailure}
+	initialIsDragging={true}
+	initialX={userInterface.left}
+	initialY={userInterface.top}
+	let:hasError={hasError}
 >
-	<div
-		class="overlay"
-	>
-		{#if rootRef}
-			<Draggable
-				draggableRef={rootRef}
-				type="clickAndRelease"
-				onDraggingSuccess={onDraggingSuccess}
-				onDraggingFailure={onDraggingFailure}
-				initialIsDragging={true}
-				initialX={userInterface.left}
-				initialY={userInterface.top}
-			/>
-		{/if}
-	</div>
+	<Overlay
+		hasError={hasError}
+	/>
 
 	{#if userInterface.type === "textInput"}
-		<MyaTextInput />
+		<MyaTextInput
+			hasError={hasError}
+		/>
 	{/if}
-</div>
-
-<style lang="scss">
-	.newUserInterface {
-		position: absolute;
-		width: min-content;
-		height: min-content;
-
-		.overlay {
-			position: absolute;
-			top: 0;
-			left: 0;
-			bottom: 0;
-			right: 0;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
-	}
-</style>
+</Draggable>

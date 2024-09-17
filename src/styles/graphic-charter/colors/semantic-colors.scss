@@ -3,10 +3,14 @@
 
 // semantic colors: abstract interpretations of base colors
 $outer-background: base-colors.$white;
+$outer-background-hover: color.adjust(base-colors.$white, $blackness: 10%);
 $inner-background: base-colors.$light-gray;
 $inner-background-hover: color.adjust(base-colors.$light-gray, $blackness: 10%);
+$dialog-backdrop-color: color.adjust(base-colors.$black, $alpha: -0.8);
 $error-background: color.adjust(base-colors.$red, $alpha: -0.8);
 $error-text: base-colors.$red;
 $error-border: base-colors.$red;
 $text: base-colors.$black;
+$text-disabled: color.adjust(base-colors.$black, $whiteness: 80%);
 $border: base-colors.$black;
+$border-disabled: color.adjust(base-colors.$black, $whiteness: 80%);

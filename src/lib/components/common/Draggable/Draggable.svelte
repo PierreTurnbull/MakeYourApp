@@ -1,5 +1,4 @@
 <script lang="ts">
-    import Icon from "@iconify/svelte";
     import type { TDragType } from "$models/drag/drag.model";
     import { onMount } from "svelte";
 
@@ -13,8 +12,8 @@
 	export let initialIsDragging = false;
 	export let initialX: number = 0;
 	export let initialY: number = 0;
-	export let draggableRef: HTMLElement;
 
+	let rootRef: HTMLElement;
 	let collides = false;
 	let isDragging = false;
 	let currentX = initialX;
@@ -30,10 +29,10 @@
 	let maxY = 0;
 
 	const getObstacles = () => {
-		if (!draggableRef.parentElement) throw new Error("Missing parent for draggable element.");
+		if (!rootRef.parentElement) throw new Error("Missing parent for draggable element.");
 
-		const obstacles = [...draggableRef.parentElement.children]
-			.filter(child => child !== draggableRef)
+		const obstacles = [...rootRef.parentElement.children]
+			.filter(child => child !== rootRef)
 			.filter((child: Element): child is HTMLElement => child instanceof HTMLElement);
 
 		return obstacles;
@@ -57,8 +56,8 @@
 	};
 
 	const applyStyle = () => {
-		draggableRef.style.top = `${currentY}px`;
-		draggableRef.style.left = `${currentX}px`;
+		rootRef.style.top = `${currentY}px`;
+		rootRef.style.left = `${currentX}px`;
 	};
 
 	const startDragging = () => {
@@ -86,10 +85,10 @@
 	 * @param event mouse event
 	 * @returns whether the event occurred from the draggable ref's descendance
 	 */
-	const checkIfDraggableRefContainsTarget = (event: MouseEvent) => {
+	const checkIfrootRefContainsTarget = (event: MouseEvent) => {
 		if (!(event.target instanceof Element)) return false;
 
-		return draggableRef.contains(event.target);
+		return rootRef.contains(event.target);
 	};
 
 	const getNextCoordinates = (movementX: number, movementY: number) => {
@@ -137,10 +136,10 @@
 			const obstacleEndX = obstacleX + obstacle.offsetWidth;
 			const obstacleEndY = obstacleY + obstacle.offsetHeight;
 
-			const topLeftCornerCollides = (nextX > obstacleStartX) && (nextX <= obstacleEndX) && (nextY > obstacleStartY) && (nextY <= obstacleEndY);
-			const topRightCornerCollides = (nextX + width > obstacleStartX) && (nextX + width <= obstacleEndX) && (nextY > obstacleStartY) && (nextY <= obstacleEndY);
-			const bottomLeftCornerCollides = (nextX > obstacleStartX) && (nextX <= obstacleEndX) && (nextY + height > obstacleStartY) && (nextY + height <= obstacleEndY);
-			const bottomRightCornerCollides = (nextX + width > obstacleStartX) && (nextX + width <= obstacleEndX) && (nextY + height > obstacleStartY) && (nextY + height <= obstacleEndY);
+			const topLeftCornerCollides = (nextX > obstacleStartX) && (nextX < obstacleEndX) && (nextY > obstacleStartY) && (nextY < obstacleEndY);
+			const topRightCornerCollides = (nextX + width > obstacleStartX) && (nextX + width < obstacleEndX) && (nextY > obstacleStartY) && (nextY < obstacleEndY);
+			const bottomLeftCornerCollides = (nextX > obstacleStartX) && (nextX < obstacleEndX) && (nextY + height > obstacleStartY) && (nextY + height < obstacleEndY);
+			const bottomRightCornerCollides = (nextX + width > obstacleStartX) && (nextX + width < obstacleEndX) && (nextY + height > obstacleStartY) && (nextY + height < obstacleEndY);
 
 			const currentCollides = topLeftCornerCollides || topRightCornerCollides || bottomLeftCornerCollides || bottomRightCornerCollides;
 
@@ -188,7 +187,7 @@
 
 	if (type === "clickAndRelease") {
 		onMouseUp = (event: MouseEvent) => {
-			if (!checkIfDraggableRefContainsTarget(event)) return;
+			if (!checkIfrootRefContainsTarget(event)) return;
 
 			if (isDragging) {
 				stopDragging();
@@ -202,7 +201,7 @@
 		};
 
 		onMouseUp = (event: MouseEvent) => {
-			if (!checkIfDraggableRefContainsTarget(event)) return;
+			if (!checkIfrootRefContainsTarget(event)) return;
 
 			stopDragging();
 		};
@@ -215,12 +214,12 @@
 	};
 
 	onMount(() => {
-		if (!draggableRef.parentElement) throw new Error("Missing parent for draggable element.");
+		if (!rootRef.parentElement) throw new Error("Missing parent for draggable element.");
 
-		width = draggableRef.getBoundingClientRect().width;
-		height = draggableRef.getBoundingClientRect().height;
-		maxX = draggableRef.parentElement.clientWidth - draggableRef.clientWidth;
-		maxY = draggableRef.parentElement.clientHeight - draggableRef.clientHeight;
+		width = rootRef.getBoundingClientRect().width;
+		height = rootRef.getBoundingClientRect().height;
+		maxX = rootRef.parentElement.clientWidth - rootRef.clientWidth;
+		maxY = rootRef.parentElement.clientHeight - rootRef.clientHeight;
 
 		applyStyle();
 		if (initialIsDragging) startDragging();
@@ -232,52 +231,29 @@
 	on:mousemove={onMouseMove}
 />
 <div
+	bind:this={rootRef}
 	class="draggable"
 	class:colliding={collides}
+	class:dragged={isDragging}
 	role="button"
 	tabindex="0"
 	on:mousedown={onMouseDown}
 >
-	<div class="draggable-dragIconWrapper">
-		<Icon icon="fa-solid:arrows-alt" />
-	</div>
+	<slot hasError={collides} />
 </div>
+
 
 <style lang="scss">
 	.draggable {
-		border-radius: 6px;
-		opacity: 0;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		cursor: grab;
-		flex: 1;
-		height: 100%;
+		position: absolute;
+		z-index: 1;
 
-		&:not(&:first-child) {
-			border-top-left-radius: initial;
-			border-bottom-left-radius: initial;
-		}
-
-		&:not(&:last-child) {
-			border-top-right-radius: initial;
-			border-bottom-right-radius: initial;
-		}
-
-		&:hover {
-			opacity: 1;
-		}
-
-		&-dragIconWrapper {
-			line-height: 0;
-			padding: 4px;
-			border-radius: 9999px;
-			background-color: rgba($outer-background, 1);
-		}
-
-		&.colliding {
-			background-color: $error-background;
-			color: $error-text;
+		&.dragged {
+			z-index: 2;
 		}
 	}
 </style>

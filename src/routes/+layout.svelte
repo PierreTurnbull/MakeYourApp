@@ -1,13 +1,14 @@
 <script>
-	import "/src/styles/reset.scss";
-	import "/src/styles/smui/index.scss";
+    import "../styles/app.scss";
+    import "/src/styles/reset.scss";
+    import "/src/styles/smui/index.scss";
 
     import { goto } from "$app/navigation";
-	import { page } from "$app/stores";
+    import { page } from "$app/stores";
     import { onMount } from "svelte";
     import { userInterfacesStore } from "$stores/userInterfaces/userInterfaces.store";
 
-	export let data;
+    export let data;
 
 	onMount(() => {
 		userInterfacesStore.set(data.userInterfaces);
@@ -30,11 +31,12 @@
 		{/if}
 	</h2>
 
-	<slot />
+	<slot></slot>
 </div>
 
 <style lang="scss">
 	#root {
+		font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 		background-color: $outer-background;
 		min-height: 100vh;
 		display: flex;

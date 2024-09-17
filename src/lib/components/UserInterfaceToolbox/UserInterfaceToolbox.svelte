@@ -17,6 +17,7 @@
 			left: $playgroundStore.mouseX + offsetX,
 			top: $playgroundStore.mouseY + offsetY,
 			type: type,
+			value: "",
 		});
 	};
 
@@ -47,7 +48,7 @@
 		left: 50%;
 		transform: translateX(-50%);
 		background-color: $outer-background;
-		z-index: 1000;
+		z-index: 10;
 
 		.tool {
 			background-color: $inner-background;
